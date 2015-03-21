@@ -7,6 +7,7 @@ class oscParamSenderAbstract
 {
   public:
   oscParamSenderAbstract(){};
+  virtual void send(){};
   virtual ofAbstractParameter& param(){};
 };
 
@@ -34,6 +35,13 @@ class oscParamSender : public oscParamSenderAbstract
       return init( sender );
     };
 
+    virtual void send()
+    {
+      setup_msg();
+      update_msg( _param.get() );
+      sender->sendMessage(m);
+    };
+
     virtual ofAbstractParameter& param() 
     {
       return _param;
@@ -48,14 +56,17 @@ class oscParamSender : public oscParamSenderAbstract
       return _param;
     };
 
-    void update(T& value)
+    void update( T& value )
     {
-      string name = "/"+_param.getName();
-      //cout << "oscParamSender update " << name << " = " << value << endl;
-      m.clear();
-      m.setAddress( name );
+      setup_msg();
       update_msg( value );
       sender->sendMessage(m);
+    };
+
+    void setup_msg()
+    {
+      m.clear();
+      m.setAddress("/"+_param.getName());
     };
 
     void update_msg( float& value )
@@ -94,13 +105,59 @@ class oscParamSender : public oscParamSenderAbstract
       m.addIntArg( value.a );
     };
 
-    void update_msg(ofFloatColor& value)
+    void update_msg( ofFloatColor& value )
     { 
       m.addFloatArg( value.r );
       m.addFloatArg( value.g );
       m.addFloatArg( value.b );
       m.addFloatArg( value.a );
     };
+
+
+    void update_msg( const float& value )
+    { m.addFloatArg( value ); };
+
+    void update_msg( const double& value )
+    { m.addFloatArg( value ); };
+
+    void update_msg( const int& value )
+    { m.addIntArg( value ); };
+
+    void update_msg( const bool& value )
+    { m.addIntArg( value ); };
+
+    void update_msg( const string& value )
+    { m.addStringArg( value ); };
+
+    void update_msg( const ofVec2f& value )
+    { 
+      m.addFloatArg( value.x );
+      m.addFloatArg( value.y );
+    };
+
+    void update_msg( const ofVec3f& value )
+    { 
+      m.addFloatArg( value.x );
+      m.addFloatArg( value.y );
+      m.addFloatArg( value.z );
+    };
+
+    void update_msg( const ofColor& value )
+    { 
+      m.addIntArg( value.r );
+      m.addIntArg( value.g );
+      m.addIntArg( value.b );
+      m.addIntArg( value.a );
+    };
+
+    void update_msg( const ofFloatColor& value )
+    { 
+      m.addFloatArg( value.r );
+      m.addFloatArg( value.g );
+      m.addFloatArg( value.b );
+      m.addFloatArg( value.a );
+    };
+
 
     ofxOscSender* sender;
     ofxOscMessage m;
