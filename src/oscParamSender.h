@@ -23,16 +23,23 @@ class oscParamSender : public oscParamSenderAbstract
       sender = NULL;
     };
 
-    ofParameter<T>& set( ofxOscSender* sender, string name, T value, T min, T max  ) 
+    ofParameter<T>& set( string name, T value, T min, T max  ) 
     {
       _param.set(name, value, min, max);
-      return init( sender );
+      return _param;
     };
 
-    ofParameter<T>& set( ofxOscSender* sender, string name, T value ) 
+    ofParameter<T>& set( string name, T value ) 
     {
       _param.set(name, value);
-      return init( sender );
+      return _param;
+    };
+
+    ofParameter<T>& init( ofxOscSender* sender ) 
+    {
+      this->sender = sender;
+      _param.addListener(this, &oscParamSender::update);
+      return _param;
     };
 
     virtual void send()
@@ -47,14 +54,7 @@ class oscParamSender : public oscParamSenderAbstract
       return _param;
     };
 
-  private:
-
-    ofParameter<T>& init( ofxOscSender* sender ) 
-    {
-      this->sender = sender;
-      _param.addListener(this, &oscParamSender::update);
-      return _param;
-    };
+  private: 
 
     void update( T& value )
     {
